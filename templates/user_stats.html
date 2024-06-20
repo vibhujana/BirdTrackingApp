@@ -1,0 +1,102 @@
+[[extend 'layout.html']]
+[[block page_menu_items]]
+<a id="myBirdingButton" class = "navbar-item is-size-5" href="[[=URL('userstats')]]">My Birding</a>
+<a id="myChecklistsButton"  class = "navbar-item is-size-5" href="[[=URL('my_checklists')]]">My Checklists</a>
+[[end]]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+#map {
+    height: 300px;
+    width: 100%;
+    max-height: 30vh; /* Ensures the map does not extend too far down */
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+.search-container .input {
+    flex: 1;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.search-container .fa-sort {
+    margin-left: 10px; /* Adjust as needed */
+    cursor: pointer; /* Optional, if you want the icon to be clickable */
+}
+
+.bird-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.is-ellipsis {
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Show ellipsis (...) for overflowing text */
+    width: 100%; /* Make sure it takes the full width of the button */
+    text-align: left; /* Align text to the left */
+}
+</style>
+
+<div class="section" id="app" v-cloak>
+  <div class="container">
+    <h1 class="title has-text-weight-bold has-text-centered">Welcome {{ current_user }}!</h1>
+    <div class="columns is-variable is-8">
+      <div class="column is-one-quarter">
+        <h2 class="subtitle"><i class="fa-solid fa-dove"></i> Birds Seen</h2>
+        <div class="field">
+          <div class="control">
+            <div class="search-container">
+              <input class="input" type="text" v-model="search_string" @input="search()" placeholder="Search birds...">
+              <button class="button is-light" aria-hidden="true" @click="sort_birds">
+                <i class="fa fa-sort"></i>
+              </button>
+            </div>
+            <div v-if="sorted" class="has-text-left mt-2">
+              Most Recent
+            </div>
+            <div v-else class="has-text-left mt-2">
+              First Seen
+            </div>
+          </div>
+        </div>
+        <div class="box is-scrollable" style="max-height: 60vh; overflow-y: auto;">
+          <ul>
+            <li v-for="bird in filter_birds" :key="bird.id" class="has-text-left" style="margin-bottom: 10px;">
+              <button class="button is-light is-fullwidth bird-button" :class="{ 'is-active is-success': bird.clicked }" @click="click_bird(bird.id)">
+                <span class="is-ellipsis">{{ bird.name }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="column is-two-fifths">
+        <h2 class="subtitle"><i class="fa-solid fa-dove"></i> Sightings of Selected Bird</h2>
+        <div class="box">
+          <div id="map" class="mb-4"></div>
+          <div id="sightings-chart"></div>
+        </div>
+      </div>
+      <div class="column is-one-third">
+        <h2 class="subtitle"><i class="fa-solid fa-dove"></i> Bird Watching Trend</h2>
+        <div id="total-chart"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+[[block page_scripts]]
+<script>
+  let get_userdata_url = "[[=XML(get_userdata_url)]]";
+  let click_bird_url = "[[=XML(click_bird_url)]]";
+  let get_chart_data_url = "[[=XML(get_chart_data_url)]]";
+</script>
+<script src="js/user_stats.js"></script>
+[[end]]

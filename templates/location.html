@@ -1,0 +1,104 @@
+[[extend 'layout.html']]
+[[block page_menu_items]]
+<a id="myBirdingButton" class = "navbar-item is-size-5" href="[[=URL('userstats')]]">My Birding</a>
+<a id="myChecklistsButton"  class = "navbar-item is-size-5" href="[[=URL('my_checklists')]]">My Checklists</a>
+[[end]]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+#map {
+    height: 400px;
+    width: 100%;
+
+}
+.loading {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<section class="section" id="app" v-cloak>
+    <div class="columns">
+        <div class="column is-two-fifths">
+            <h1 class="title is-2">Statistics on Region</h1>
+            <div class="loading" v-if="is_loading_data"></div>
+            <div class="notification is-info" v-if="show_notif && is_loading_data">
+                <button class="delete" @click="show_notif = false"></button>
+                <p>A large amount of data was requested! Give us a moment, or select a smaller area</p>
+            </div>
+            <div class="box is-scrollable" style="max-height: 450px; overflow-y: auto;">
+                <div class="buttons">
+                    <table class="table is-fullwidth">
+                        <thead>
+                            <tr>
+                                <th>Species Spotted Here</th>
+                                <th>Sightings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="s in species_and_count.sort((a, b) => b.count - a.count)">
+                                <tr>
+                                    <td>
+                                        <button class="button is-info" @click="bird_clicked(s.species_name)">{{ s.species_name }}</button>
+                                    </td>
+                                    <td>{{ s.count }}</td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>  
+        <div class="column is-three-fifths">
+            <div>
+                <table class="table is-fullwidth is-narrow">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Top Contributors for This Region</th>
+                            <th class="has-text-left">Contributions (Checklists)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template v-for="(c, index) in top_contributors.slice(0, 5)">
+                            <tr>
+                                <td><strong>{{ index + 1 }}</strong></td>
+                                <td><strong>{{ c.email }}@sample.com</strong></td>
+                                <td class="has-text-left"><strong>{{ c.count }}</strong></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <section class="hero" v-if="!is_chart" style="display: flex; justify-content: center; align-items: center;">
+                    <p class="title">Click a species to see statistics!</p>
+                </section>
+                <div class="has-text-centered">
+                    <h1 class="title is-5" v-if="is_chart">{{ clicked_species }} Sightings Over Time</h1>
+                </div>
+                <div id="flexChart"></div>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+[[block page_scripts]]
+<script>
+    let get_species_url = "[[=XML(get_species_url)]]";
+    let get_location_checklists_url = "[[=XML(get_location_checklists_url)]]";
+    let get_sightings_url = "[[=XML(get_sightings_url)]]";
+    let get_checklists_in_region_url = "[[=XML(get_checklists_in_region_url)]]";
+    let get_sightings_in_checklist_url = "[[=XML(get_sightings_in_checklist_url)]]";
+</script>
+<script src="js/location.js"></script>
+[[end]]

@@ -1,0 +1,72 @@
+[[extend 'layout.html']]
+[[block page_menu_items]]
+<a id="myBirdingButton" class = "navbar-item is-size-5" href="[[=URL('userstats')]]">My Birding</a>
+<a id="myChecklistsButton"  class = "navbar-item is-size-5" href="[[=URL('my_checklists')]]">My Checklists</a>
+[[end]]
+
+<style>
+[v-cloak] {
+    display: none;
+}
+.table-container {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+.button-space {
+    margin-right: 10px;
+}
+</style>
+
+<section class="section" id="app" v-cloak>
+    <div class="container">
+        <h1 class="title has-text-black">My Checklists</h1>
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th class="has-text-info">Date</th>
+                        <th class="has-text-info">Time</th>
+                        <th class="has-text-info">Latitude</th>
+                        <th class="has-text-info">Longitude</th>
+                        <th class="has-text-info">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="checklist in checklists" :key="checklist.checklist_id">
+                        <tr @click="toggleSighting(checklist.checklist_id)">
+                            <td class="is-narrow"><i :class="checklist.showSightings ? 'fa fa-caret-down' : 'fa fa-caret-right'" class="icon"></i></td>
+                            <td>{{ checklist.date_observed }}</td>
+                            <td>{{ checklist.time_observed }}</td>
+                            <td>{{ Number(checklist.latitude).toFixed(3) }}</td>
+                            <td>{{ Number(checklist.longitude).toFixed(3) }}</td>
+                            <td>
+                                <button class="button is-link is-small button-space" @click.stop="editChecklist(checklist.checklist_id)">Edit</button>
+                                <button class="button is-danger is-small" @click.stop="deleteChecklist(checklist.checklist_id)">Delete</button>
+                            </td>
+                        </tr>
+                        <tr v-if="checklist.showSightings">
+                            <td colspan="6">
+                                <table class="is-narrow">
+                                    <tr v-for="sighting in checklist.sightings" :key="sighting.id">
+                                        <td>{{ sighting.species_name }}</td>
+                                        <td>{{ sighting.count }}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+[[block page_scripts]]
+<script>
+  let get_checklists_url = "[[=URL('get_checklists')]]";
+  let delete_checklist_url = "[[=URL('delete_checklist')]]";
+  let edit_checklist_url = "[[=URL('edit_checklist')]]";
+</script>
+<script src="/cse-183-project/static/js/my_checklists.js"></script>
+[[end]]

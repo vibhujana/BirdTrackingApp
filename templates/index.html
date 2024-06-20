@@ -1,0 +1,62 @@
+[[extend 'layout.html']]
+[[block page_menu_items]]
+<a id="myBirdingButton" class = "navbar-item is-size-5" href="[[=URL('userstats')]]">My Birding</a>
+<a id="myChecklistsButton"  class = "navbar-item is-size-5" href="[[=URL('my_checklists')]]">My Checklists</a>
+[[end]]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+#map { 
+    height: 400px; 
+    width: 100%;
+}
+</style>
+
+<section class="section" id="app" v-cloak>
+  <div class="container">
+    <header>
+        <h1 class="title is-1 has-text-centered">Welcome to BirdTracker!</h1>
+        <p class="subtitle has-text-centered">Explore and track your bird sightings</p>
+      </header>
+  
+
+    <div class="box">
+        <div id="map" class="mb-4"></div>
+        <button class="button is-info is-fullwidth mb-2" @click="redirectToLocation(rectangle_coords[0].lat, rectangle_coords[0].lng, rectangle_coords[1].lat, rectangle_coords[1].lng)" v-if="drawnRectangle">Statistics on Region</button>
+        <button class="button is-info is-fullwidth mb-2" @click="redirectToChecklists(marker_coords.lat, marker_coords.lng)" v-if="placed_marker">Add a checklist here</button>
+    </div>
+
+    <div class="field">
+        <div class="control">
+            <input class="input" type="text" v-model="search_string" @input="search()" placeholder="Search species...">
+        </div>
+    </div>
+    
+    <div class="box is-scrollable" style="max-height: 150px; overflow-y: auto;">
+        <div class="buttons">
+            <!-- Display species buttons based on the filter_species array -->
+            <template v-for="species in (filter_species.length > 0 ? filter_species : species).sort((a, b) => a.species_name.localeCompare(b.species_name))">
+                <button 
+                    class="button is-light" 
+                    :class="{ 
+                        'is-active is-success': species.selected 
+                    }" 
+                    @click="selectSpecies(species.species_name)">
+                    {{ species.species_name }}
+                </button>
+            </template>
+        </div>
+    </div>
+  </div>
+</section>
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  let heatmap_url = "[[=XML(heatmap_url)]]";
+  let get_species_url = "[[=XML(get_species_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]

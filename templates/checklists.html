@@ -1,0 +1,107 @@
+[[extend 'layout.html']]
+[[block page_menu_items]]
+<a id="myBirdingButton" class = "navbar-item is-size-5" href="[[=URL('userstats')]]">My Birding</a>
+<a id="myChecklistsButton"  class = "navbar-item is-size-5" href="[[=URL('my_checklists')]]">My Checklists</a>
+[[end]]
+
+<style>
+    [v-cloak] {
+         display: none;
+    }
+</style>
+
+<section class="section" id="app" v-cloak>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-three-quarters">
+                <div class="card has-background-light">
+                    <div class="card-content">
+                        <h1 class="title">Enter Checklist</h1>
+                        <div class="field">
+                            <div class="control has-icons-left">
+                                <input class="input" type="text" v-model="speciesQuery" @input="searchSpecies" placeholder="Search species...">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="table-container" style="max-height: 70vh; overflow-y: auto;">
+                            <table class="table is-fullwidth is-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Species Name</th>
+                                        <th>Count</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="species in filteredSpecies" :key="species.species_name">
+                                        <td>{{ species.species_name }}</td>
+                                        <td><input class="input" type="number" v-model.number="species.count" @input="updateCount(species, species.count)" min="0"></td>
+                                        <td>
+                                            <button class="button is-primary mr-2" @click="incrementCount(species)">+</button>
+                                            <button class="button is-danger" @click="decrementCount(species)">-</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="card has-background-light">
+                    <div class="card-content">
+                        <div class="field">
+                            <label class="label">Date Observed</label>
+                            <div class="control">
+                                <input class="input" type="date" v-model="newChecklist.dateObserved" placeholder="YYYY-MM-DD">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Time Observed</label>
+                            <div class="control">
+                                <input class="input" type="time" v-model="newChecklist.timeObserved" placeholder="HH:MM">
+                            </div>
+                        </div>           
+                        <div class="field mt-5">
+                            <h2 class="subtitle">Current Sightings</h2>
+                            <div class="sighting-container" style="max-height: 50vh; overflow-y: auto; overflow-x: hidden;">
+    
+                                <ul class="current-sightings" style="margin-bottom: 0;">
+                                    <li v-for="sighting in newChecklist.sightings" :key="sighting.speciesName" class="columns is-vcentered" style="margin-bottom: 0.25rem;">
+                                        <div class="column is-two-thirds">
+                                            <div class="columns is-vcentered">
+                                                <div class="column is-half">
+                                                    <span class="sighting-name">{{ sighting.speciesName }}:</span>
+                                                </div>
+                                                <div class="column">
+                                                    <span class="sighting-count">{{ sighting.count }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="column is-one-third has-text-right">
+                                            <button class="button is-small is-danger remove-button" @click="removeSighting(sighting)">Remove</button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>                       
+                        <button class="button is-success mt-5" @click="submitChecklist">Submit Checklist</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+[[block page_scripts]]
+<script>
+  let get_species_url = "[[=URL('get_species')]]";
+  let submit_checklist_url = "[[=URL('submit_checklist')]]";
+  let edit_checklist_url = "[[=URL('edit_checklist')]]";
+</script>
+<script src="/cse-183-project/static/js/checklists.js"></script>
+[[end]]
